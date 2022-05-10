@@ -17,11 +17,12 @@ services:
       timeout: 5s
       retries: 5
   postgres:
-    image: postgres:10.3
+    image: postgres:13.4
     restart: always
     environment:
       POSTGRES_USER: localnear
       POSTGRES_PASSWORD: localnear
+      POSTGRES_DB: indexer
     volumes:
       - postgres:/var/lib/postgresql/data
     healthcheck:
@@ -29,17 +30,17 @@ services:
       interval: 30s
       timeout: 5s
       retries: 5
-  # near-indexer-for-explorer:
-    # image: nearprotocol/near-indexer-for-explorer:mhala-docker
-    # restart: always
-    # volumes:
-      # - ./.near-indexer:/root/.near
-    # environment:
-      # DATABASE_URL: postgres://localnear:localnear@postgres/indexer
-    # depends_on:
-      # neard:
-        # condition: service_healthy
-      # postgres:
-        # condition: service_healthy
+  near-indexer-for-explorer:
+    image: kurtosistech/near-indexer-for-explorer:7510e7f
+    restart: always
+    volumes:
+      - ./.near-indexer:/root/.near
+    environment:
+      DATABASE_URL: postgres://localnear:localnear@postgres/indexer
+    depends_on:
+      neard:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
 volumes:
   postgres: ~
