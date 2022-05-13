@@ -1,5 +1,7 @@
 version: "3"
 
+# https://github.com/kurtosis-tech/near-kurtosis-module/tree/develop/kurtosis-module/impl/services
+
 services:
   neard:
     build:
@@ -42,5 +44,15 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+  near-wallet:
+    build:
+      context: ./
+      dockerfile: wallet.Dockerfile
+    restart: always
+    depends_on:
+      neard:
+        condition: service_healthy
+    ports:
+      - "3004:3004"
 volumes:
   postgres: ~
