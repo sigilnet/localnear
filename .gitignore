@@ -2,3 +2,4 @@
 .nearup
 .near-indexer
 docker-images
+.env*

@@ -45,6 +45,34 @@ services:
         condition: service_healthy
       postgres:
         condition: service_healthy
+  contract-helper:
+    build:
+      context: ./
+      dockerfile: contract-helper.Dockerfile
+    environment:
+      MAIL_HOST: "smtp.ethereal.email"
+      MAIL_PASSWORD: ""
+      MAIL_PORT: "587"
+      MAIL_USER: ""
+      NEW_ACCOUNT_AMOUNT: "10000000000000000000000000"
+      NODE_ENV: "development"
+      NEAR_WALLET_ENV: "development"
+      PORT: 3032
+      TWILIO_ACCOUNT_SID: ""
+      TWILIO_AUTH_TOKEN: ""
+      TWILIO_FROM_PHONE: "+14086179592"
+      WALLET_URL: ""
+      INDEXER_DB_CONNECTION: "postgres://localnear:localnear@postgres/accounts"
+      NODE_URL: "http://neard:3030"
+    depends_on:
+      neard:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./.near:/root/.near
+    ports:
+      - "3032:3032"
   near-wallet:
     build:
       context: ./
