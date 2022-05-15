@@ -1,0 +1,1 @@
+NEAR_ENV="local" NEAR_CLI_LOCALNET_NETWORK_ID="localnet" NEAR_NODE_URL="http://localhost:13031" NEAR_CLI_LOCALNET_KEY_PATH="./.near-indexer/localnet/validator_key.json" NEAR_WALLET_URL="http://localhost:13034" NEAR_HELPER_URL="http://localhost:13033" NEAR_HELPER_ACCOUNT="test.near" NEAR_EXPLORER_URL="http://localhost:13032" near "$@"
