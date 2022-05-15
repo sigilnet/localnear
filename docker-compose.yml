@@ -36,11 +36,17 @@ services:
       timeout: 5s
       retries: 5
   indexer:
-    image: kurtosistech/near-indexer-for-explorer:7510e7f
+    build:
+      context: ./indexer
     volumes:
       - ./.near-indexer:/root/.near
     environment:
       DATABASE_URL: postgres://localnear:localnear@postgres/indexer
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3030/status"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     depends_on:
       neard:
         condition: service_healthy
@@ -48,6 +54,14 @@ services:
         condition: service_healthy
     ports:
       - "13031:3030"
+  analytics:
+    image: nguquen/near-analytics:latest
+    environment:
+      ANALYTICS_DATABASE_URL: postgres://localnear:localnear@postgres/analytics
+      INDEXER_DATABASE_URL: postgres://localnear:localnear@postgres/indexer
+    depends_on:
+      indexer:
+        condition: service_healthy
   explorer-wamp:
     image: kurtosistech/near-explorer_wamp:latest
     environment:
@@ -55,6 +69,9 @@ services:
       WAMP_NEAR_EXPLORER_BACKEND_SECRET: back
     ports:
       - "18080:8080"
+    depends_on:
+      indexer:
+        condition: service_healthy
   explorer-backend:
     image: kurtosistech/near-explorer_backend:5ef5b6c
     environment:
@@ -80,6 +97,9 @@ services:
       NEAR_IS_LEGACY_SYNC_BACKEND_ENABLED: "false"
       NEAR_IS_INDEXER_BACKEND_ENABLED: "true"
       NEAR_RPC_URL: "http://indexer:3030"
+    depends_on:
+      indexer:
+        condition: service_healthy
   explorer-frontend:
     image: kurtosistech/near-explorer_frontend:5ef5b6c
     environment:
@@ -109,9 +129,7 @@ services:
       INDEXER_DB_CONNECTION: "postgres://localnear:localnear@postgres/indexer"
       NODE_URL: "http://indexer:3030"
     depends_on:
-      neard:
-        condition: service_healthy
-      postgres:
+      indexer:
         condition: service_healthy
     volumes:
       - ./.near-indexer:/root/.near:ro
@@ -129,7 +147,7 @@ services:
         - EXPLORER_URL=http://127.0.0.1:13032
         - ACCOUNT_HELPER_URL=http://127.0.0.1:13033
     depends_on:
-      neard:
+      indexer:
         condition: service_healthy
     ports:
       - "13034:3004"
