@@ -18,6 +18,7 @@ LocalNear is a NEAR Development Environment with a simple docker-compose file, w
 
 ### Send a test transaction
 `$ export ACCOUNT_ID=<YOUR_ACCOUNT_ID>`
+
 `$ ./local_near send $ACCOUNT_ID test.near 1`
 
 ## Local NEAR Explorer
