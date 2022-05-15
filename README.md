@@ -38,3 +38,9 @@ $ ./local_near call $ACCOUNT_ID nft_mint '{"token_id": "team_token", "metadata":
 
 ## Stop LocalNear
 `$ docker-compose down`
+
+## In case you want a clean environment, reset all data following these step:
+`$ docker-compose down`
+`$ docker volume rm localnear_postgres`
+`$ rm -rf .near*`
+`$ docker-compose up -d`
