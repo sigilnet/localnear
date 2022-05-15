@@ -1,41 +1,40 @@
 version: "3"
 
+# https://github.com/near/docs/blob/975642ad49338bf8728a675def1f8bec8a780922/docs/local-setup/entire-setup.md
 # https://github.com/kurtosis-tech/near-kurtosis-module/tree/develop/kurtosis-module/impl/services
 
 services:
   neard:
     build:
-      context: ./
-      dockerfile: nearup.Dockerfile
+      context: ./nearup
+      args:
+        - VERSION=1.26.0/c164b7df5f94f54c8f36305348dcd9f9b9994ddc
     volumes:
       - ./.near:/root/.near
       - ./.nearup:/root/.nearup
     ports:
       - "3030:3030"
-    command: run localnet
+    command: run localnet --num-nodes 1 --num-shards 1
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:3030/status"]
-      interval: 30s
+      interval: 5s
       timeout: 5s
       retries: 5
   postgres:
     build:
-      context: ./
-      dockerfile: postgres.Dockerfile
-    restart: always
+      context: ./postgres
     environment:
       POSTGRES_USER: localnear
       POSTGRES_PASSWORD: localnear
     volumes:
       - postgres:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 30s
+      test: ["CMD-SHELL", "pg_isready -U localnear"]
+      interval: 5s
       timeout: 5s
       retries: 5
-  near-indexer-for-explorer:
+  indexer:
     image: kurtosistech/near-indexer-for-explorer:7510e7f
-    restart: always
     volumes:
       - ./.near-indexer:/root/.near
     environment:
@@ -47,8 +46,7 @@ services:
         condition: service_healthy
   contract-helper:
     build:
-      context: ./
-      dockerfile: contract-helper.Dockerfile
+      context: ./contract-helper
     environment:
       MAIL_HOST: "smtp.ethereal.email"
       MAIL_PASSWORD: ""
@@ -62,7 +60,7 @@ services:
       TWILIO_AUTH_TOKEN: ""
       TWILIO_FROM_PHONE: "+14086179592"
       WALLET_URL: ""
-      INDEXER_DB_CONNECTION: "postgres://localnear:localnear@postgres/accounts"
+      INDEXER_DB_CONNECTION: "postgres://localnear:localnear@postgres/indexer"
       NODE_URL: "http://neard:3030"
     depends_on:
       neard:
@@ -70,14 +68,12 @@ services:
       postgres:
         condition: service_healthy
     volumes:
-      - ./.near:/root/.near
+      - ./.near:/root/.near:ro
     ports:
       - "3032:3032"
-  near-wallet:
+  wallet:
     build:
-      context: ./
-      dockerfile: wallet.Dockerfile
-    restart: always
+      context: ./wallet
     depends_on:
       neard:
         condition: service_healthy
