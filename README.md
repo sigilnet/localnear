@@ -1,4 +1,4 @@
-LocalNear is a NEAR Development Environment with a simple docker-compose file, which contains following components:
+LocalNear is a Local Development Environment for NEAR with a simple docker-compose file, which contains following components:
 - Localnet RPC Endpoint
 - Indexer for Explorer
 - NEAR Explorer
