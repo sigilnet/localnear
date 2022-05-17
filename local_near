@@ -2,7 +2,7 @@
 
 export NEAR_ENV="local"
 export NEAR_CLI_LOCALNET_NETWORK_ID="localnet"
-export NEAR_CLI_LOCALNET_KEY_PATH="./.near-indexer/localnet/validator_key.json"
+export NEAR_CLI_LOCALNET_KEY_PATH="$(dirname $(readlink -f $0))/.near-indexer/localnet/validator_key.json"
 export NEAR_HELPER_ACCOUNT="test.near"
 export NEAR_NODE_URL="http://localhost:13031"
 export NEAR_EXPLORER_URL="http://localhost:13032"
