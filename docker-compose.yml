@@ -4,22 +4,6 @@ version: "3"
 # https://github.com/kurtosis-tech/near-kurtosis-module/tree/develop/kurtosis-module/impl/services
 
 services:
-  neard:
-    build:
-      context: ./nearup
-      args:
-        - VERSION=1.26.0/c164b7df5f94f54c8f36305348dcd9f9b9994ddc
-    volumes:
-      - ./.near:/root/.near
-      - ./.nearup:/root/.nearup
-    ports:
-      - "13030:3030"
-    command: run localnet --num-nodes 1 --num-shards 1
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:3030/status"]
-      interval: 5s
-      timeout: 5s
-      retries: 5
   postgres:
     build:
       context: ./postgres
@@ -48,12 +32,11 @@ services:
       timeout: 5s
       retries: 5
     depends_on:
-      neard:
-        condition: service_healthy
       postgres:
         condition: service_healthy
     ports:
       - "13031:3030"
+      - "34567:24567"
   analytics:
     image: nguquen/near-analytics:latest
     environment:
