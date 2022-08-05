@@ -103,10 +103,10 @@ services:
       MAIL_USER: ""
       NEW_ACCOUNT_AMOUNT: "100000000000000000000000000"
       NODE_ENV: "development"
-      NEAR_WALLET_ENV: "development"
+      NEAR_WALLET_ENV: "testnet"
       PORT: 3033
-      TWILIO_ACCOUNT_SID: ""
-      TWILIO_AUTH_TOKEN: ""
+      TWILIO_ACCOUNT_SID: "ACdummy"
+      TWILIO_AUTH_TOKEN: "dummy"
       TWILIO_FROM_PHONE: "+14086179592"
       WALLET_URL: ""
       INDEXER_DB_CONNECTION: "postgres://localnear:localnear@postgres/indexer"
