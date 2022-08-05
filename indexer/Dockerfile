@@ -1,4 +1,4 @@
-FROM kurtosistech/near-indexer-for-explorer:c07fb7b
+FROM nguquen/near-indexer-for-explorer:latest
 
 RUN apt update
 RUN apt install curl -y

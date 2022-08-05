@@ -1,9 +1,11 @@
 LocalNear is a Local Development Environment for NEAR with a simple docker-compose file, which contains following components:
 
-- Localnet RPC Endpoint
+- Localnet RPC Endpoint <http://localhost:13031>
 - Indexer for Explorer
-- NEAR Explorer
-- NEAR Wallet
+- NEAR Explorer <http://localhost:13032>
+- Contract Helper <http://localhost:13033>
+- Contract Helper Indexer <http://localhost:23033>
+- NEAR Wallet <http://localhost:13034>
 
 ## Prerequisites
 

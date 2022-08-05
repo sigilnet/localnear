@@ -1,7 +1,7 @@
 version: "3"
 
 # https://github.com/near/docs/blob/975642ad49338bf8728a675def1f8bec8a780922/docs/local-setup/entire-setup.md
-# https://github.com/kurtosis-tech/near-kurtosis-module/tree/develop/kurtosis-module/impl/services
+# https://github.com/kurtosis-tech/near-kurtosis-module/
 
 services:
   postgres:
@@ -23,7 +23,7 @@ services:
     build:
       context: ./indexer
     volumes:
-      - ./.near-indexer:/root/.near
+      - ./.near:/root/.near
     environment:
       DATABASE_URL: postgres://localnear:localnear@postgres/indexer
     healthcheck:
@@ -45,68 +45,66 @@ services:
     depends_on:
       indexer:
         condition: service_healthy
-  explorer-wamp:
-    image: kurtosistech/near-explorer_wamp:latest
+  explorer-backend:
+    image: nguquen/near-explorer-backend:latest
     environment:
-      WAMP_NEAR_EXPLORER_PORT: 8080
-      WAMP_NEAR_EXPLORER_BACKEND_SECRET: back
+      NEAR_EXPLORER_CONFIG__NETWORK_NAME: localnet
+      NEAR_EXPLORER_CONFIG__ARCHIVAL_RPC_URL: "http://indexer:3030"
+      NEAR_EXPLORER_CONFIG__PORT: 8080
+
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_INDEXER__HOST: postgres
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_INDEXER__DATABASE: indexer
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_INDEXER__USER: localnear
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_INDEXER__PASSWORD: localnear
+
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_ANALYTICS__HOST: postgres
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_ANALYTICS__DATABASE: analytics
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_ANALYTICS__USER: localnear
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_ANALYTICS__PASSWORD: localnear
+
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_TELEMETRY__HOST: postgres
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_TELEMETRY__DATABASE: telemetry
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_TELEMETRY__USER: localnear
+      NEAR_EXPLORER_CONFIG__DB__READ_ONLY_TELEMETRY__PASSWORD: localnear
+
+      NEAR_EXPLORER_CONFIG__DB__WRITE_ONLY_TELEMETRY__HOST: postgres
+      NEAR_EXPLORER_CONFIG__DB__WRITE_ONLY_TELEMETRY__DATABASE: telemetry
+      NEAR_EXPLORER_CONFIG__DB__WRITE_ONLY_TELEMETRY__USER: localnear
+      NEAR_EXPLORER_CONFIG__DB__WRITE_ONLY_TELEMETRY__PASSWORD: localnear
     ports:
       - "18080:8080"
     depends_on:
       indexer:
         condition: service_healthy
-  explorer-backend:
-    image: kurtosistech/near-explorer_backend:5ef5b6c
-    environment:
-      NEAR_READ_ONLY_INDEXER_DATABASE_USERNAME: "localnear"
-      NEAR_READ_ONLY_INDEXER_DATABASE_PASSWORD: "localnear"
-      NEAR_READ_ONLY_INDEXER_DATABASE_HOST: "postgres"
-      NEAR_READ_ONLY_INDEXER_DATABASE_NAME: "indexer"
-      NEAR_READ_ONLY_ANALYTICS_DATABASE_USERNAME: "localnear"
-      NEAR_READ_ONLY_ANALYTICS_DATABASE_PASSWORD: "localnear"
-      NEAR_READ_ONLY_ANALYTICS_DATABASE_HOST: "postgres"
-      NEAR_READ_ONLY_ANALYTICS_DATABASE_NAME: "analytics"
-      NEAR_READ_ONLY_TELEMETRY_DATABASE_USERNAME: "localnear"
-      NEAR_READ_ONLY_TELEMETRY_DATABASE_PASSWORD: "localnear"
-      NEAR_READ_ONLY_TELEMETRY_DATABASE_HOST: "postgres"
-      NEAR_READ_ONLY_TELEMETRY_DATABASE_NAME: "telemetry"
-      NEAR_WRITE_ONLY_TELEMETRY_DATABASE_USERNAME: "localnear"
-      NEAR_WRITE_ONLY_TELEMETRY_DATABASE_PASSWORD: "localnear"
-      NEAR_WRITE_ONLY_TELEMETRY_DATABASE_HOST: "postgres"
-      NEAR_WRITE_ONLY_TELEMETRY_DATABASE_NAME: "telemetry"
-      WAMP_NEAR_EXPLORER_URL: "ws://explorer-wamp:8080/ws"
-      WAMP_NEAR_EXPLORER_BACKEND_SECRET: "back"
-      WAMP_NEAR_NETWORK_NAME: "localnet"
-      NEAR_IS_LEGACY_SYNC_BACKEND_ENABLED: "false"
-      NEAR_IS_INDEXER_BACKEND_ENABLED: "true"
-      NEAR_RPC_URL: "http://indexer:3030"
-    depends_on:
-      indexer:
-        condition: service_healthy
   explorer-frontend:
-    image: kurtosistech/near-explorer_frontend:5ef5b6c
+    image: nguquen/near-explorer-frontend:latest
     environment:
-      WAMP_NEAR_EXPLORER_INTERNAL_URL: "ws://explorer-wamp:8080/ws"
-      WAMP_NEAR_EXPLORER_URL: "ws://127.0.0.1:18080/ws"
-      NEAR_EXPLORER_DATA_SOURCE: "INDEXER_BACKEND"
+      NEAR_EXPLORER_CONFIG__NETWORK_NAME: "localnet"
+      NEAR_EXPLORER_CONFIG__NETWORKS: "{\"localnet\":{\"explorerLink\":\"http://localhost:13032/\",\"nearWalletProfilePrefix\":\"http://localhost:13034/profile\"}}"
       PORT: 3032
-      NEAR_NETWORKS: "[{\"name\": \"localnet\", \"explorerLink\": \"http://localhost:13032/\", \"aliases\": [\"localhost:13032\", \"127.0.0.1:13032\"], \"nearWalletProfilePrefix\": \"https://wallet.testnet.near.org/profile\"}]"
+      NEAR_EXPLORER_CONFIG__BACKEND_SSR__HOSTS__LOCALNET: explorer-backend
+      NEAR_EXPLORER_CONFIG__BACKEND_SSR__PORT: 8080
+      NEAR_EXPLORER_CONFIG__BACKEND_SSR__SECURE: "false"
+      NEAR_EXPLORER_CONFIG__BACKEND__HOSTS__LOCALNET: localhost
+      NEAR_EXPLORER_CONFIG__BACKEND__PORT: 18080
+      NEAR_EXPLORER_CONFIG__BACKEND__SECURE: "false"
     ports:
       - "13032:3032"
   contract-helper:
     build:
       context: ./contract-helper
     environment:
+      START_TYPE: "start"
       MAIL_HOST: "smtp.ethereal.email"
       MAIL_PASSWORD: ""
       MAIL_PORT: "587"
       MAIL_USER: ""
       NEW_ACCOUNT_AMOUNT: "100000000000000000000000000"
       NODE_ENV: "development"
-      NEAR_WALLET_ENV: "development"
+      NEAR_WALLET_ENV: "testnet"
       PORT: 3033
-      TWILIO_ACCOUNT_SID: ""
-      TWILIO_AUTH_TOKEN: ""
+      TWILIO_ACCOUNT_SID: "ACdummy"
+      TWILIO_AUTH_TOKEN: "dummy"
       TWILIO_FROM_PHONE: "+14086179592"
       WALLET_URL: ""
       INDEXER_DB_CONNECTION: "postgres://localnear:localnear@postgres/indexer"
@@ -115,9 +113,25 @@ services:
       indexer:
         condition: service_healthy
     volumes:
-      - ./.near-indexer:/root/.near:ro
+      - ./.near:/root/.near:ro
     ports:
       - "13033:3033"
+  contract-helper-indexer:
+    build:
+      context: ./contract-helper
+    environment:
+      START_TYPE: "start:indexer"
+      NODE_ENV: "development"
+      NEAR_WALLET_ENV: "testnet"
+      PORT: 3033
+      INDEXER_DB_REPLICAS: '["postgres://localnear:localnear@postgres/indexer"]'
+    depends_on:
+      indexer:
+        condition: service_healthy
+    volumes:
+      - ./.near:/root/.near:ro
+    ports:
+      - "23033:3033"
   wallet:
     build:
       context: ./wallet
@@ -129,6 +143,7 @@ services:
         - NODE_URL=http://127.0.0.1:13031
         - EXPLORER_URL=http://127.0.0.1:13032
         - ACCOUNT_HELPER_URL=http://127.0.0.1:13033
+        - INDEXER_SERVICE_URL=http://127.0.0.1:23033
     depends_on:
       indexer:
         condition: service_healthy
