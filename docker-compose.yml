@@ -23,7 +23,7 @@ services:
     build:
       context: ./indexer
     volumes:
-      - ./.near-indexer:/root/.near
+      - ./.near:/root/.near
     environment:
       DATABASE_URL: postgres://localnear:localnear@postgres/indexer
     healthcheck:
@@ -115,7 +115,7 @@ services:
       indexer:
         condition: service_healthy
     volumes:
-      - ./.near-indexer:/root/.near:ro
+      - ./.near:/root/.near:ro
     ports:
       - "13033:3033"
   wallet:
